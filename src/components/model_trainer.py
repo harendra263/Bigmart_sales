@@ -2,13 +2,14 @@ import sys
 import os
 from dataclasses import dataclass
 
+import numpy as np
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import (
     GradientBoostingRegressor, RandomForestRegressor
 )
 
 from xgboost import XGBRegressor
-from sklearn.metrics import r2_score
+from sklearn.metrics import r2_score, mean_squared_error
 
 from src.exception import CustomException
 from src.logger import logging
@@ -75,7 +76,10 @@ class ModelTrainer:
                 obj=best_model
             )
             predicted = best_model.predict(X_val)
+            rmse = np.sqrt(mean_squared_error(y_val, predicted))
+            r_square = r2_score(y_val, predicted)
+            logging.info(f'Model Training process completed with rmse: {rmse} and R_square: {r_square}')
 
-            return r2_score(y_val, predicted)
+            return rmse
         except Exception as e:
             raise CustomException(e, sys) from e
