@@ -1,104 +1,111 @@
 import sys
-import os
+from dataclasses import dataclass
+
+import numpy as np 
+import pandas as pd
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder,StandardScaler, LabelEncoder
+
 from src.exception import CustomException
 from src.logger import logging
+import os
+
 from src.utils import save_object
-
-from sklearn.metrics import r2_score
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import LabelEncoder, StandardScaler
-from sklearn.impute import SimpleImputer
-from sklearn.compose import ColumnTransformer
-
-from dataclasses import dataclass
-import pandas as pd
-import numpy as np
 
 @dataclass
 class DataTransformationConfig:
-    preprocessor_obj_file_path = os.path.join('artifacts', 'preprocessor.pkl')
+    preprocessor_obj_file_path=os.path.join('artifacts',"proprocessor.pkl")
 
 class DataTransformation:
     def __init__(self):
-        self.data_transformation_config = DataTransformationConfig()
+        self.data_transformation_config=DataTransformationConfig()
     
-    def get_data_transformation_object(self) -> ColumnTransformer:
-        """This function will return preprocessing objects"""
+    def _handle_missing_values(self, df: pd.DataFrame) -> pd.DataFrame:
         try:
-            num_cols = ['Item_Weight', 'Item_Visibility', 'Item_MRP']
-            categorical_cols = ['Item_Identifier', 'Item_Fat_Content', 'Item_Type', 'Outlet_Identifier',
-                                'Outlet_Size', 'Outlet_Location_Type', 'Outlet_Type']
-            
-            num_pipeline = Pipeline(
-                steps=[
-                ("imputer", SimpleImputer(strategy="median")),
-                ("scaler", StandardScaler())
-                ]
-            )
-
-            cat_pipeline = Pipeline(
-                steps=[
-                ("imputer", SimpleImputer(strategy="most_frequent")),
-                ("label_encoding", LabelEncoder()),
-                ("scaler", StandardScaler())
-                ]
-            )
-
-            logging.info(f"Categorical Columns: {categorical_cols}")
-            logging.info(f"Numerical Columns: {num_cols}")
-
-            return ColumnTransformer(
-                [
-                ("num_pipeline", num_pipeline, num_cols),
-                ("cat_pipelines", cat_pipeline, categorical_cols)
-                ]
-            )
-            
+            logging.info("Imputation process started")
+            for i in df.columns:
+                if i in df.select_dtypes(include=['float64', 'int64']):
+                    df[i] = df[i].replace(np.nan, df[i].median())
+                elif i in df.select_dtypes(include='object'):
+                    df[i] = df[i].replace(np.nan, df[i].mode()[0])
+                else:
+                    raise CustomException("While imputing missing values, something went wring", sys)
+            logging.info("Imputation process completed successfully")
+            return df
+        except Exception as e:
+            raise CustomException(e, sys) from e
+        
+    def _label_encoder(self, df: pd.DataFrame):
+        try:
+            logging.info("Encoding process started")
+            for x in df.columns:
+                if x in df.select_dtypes(include="object"):
+                    df[x] = df[x].astype('category').cat.codes
+            logging.info("Encoding process completed")
+            return df
+        except Exception as e:
+            raise CustomException(e, sys) from e
+        
+    def _scale_num_col(self, df: pd.DataFrame) -> pd.DataFrame:
+        try:
+            logging.info("Standardizing process started")
+            num_df = df.select_dtypes(exclude="object")
+            num_cols = num_df.columns
+            scaled_df= pd.DataFrame(StandardScaler().fit_transform(num_df), columns=num_df.columns)
+            new_df = df.drop(num_cols, axis=1)
+            logging.info("Standardizing process completed")
+            return pd.concat([new_df, scaled_df], axis=1)
+        except Exception as e:
+            raise CustomException(e, sys) from e
+        
+    def fit_transform(self, df: pd.DataFrame):
+        try:
+            df = self._handle_missing_values(df)
+            df = self._label_encoder(df=df)
+            df = self._scale_num_col(df=df)
+            return df.to_numpy()
         except Exception as e:
             raise CustomException(e, sys) from e
     
-    def initiate_data_transformation(self, train_path, val_path):
+        
+    def initiate_data_transformation(self,train_path,test_path):
+
         try:
-            train_df = pd.read_csv(train_path)
-            val_df = pd.read_csv(val_path)
+            train_df=pd.read_csv(train_path)
+            test_df=pd.read_csv(test_path)
 
-            logging.info("Train and val data has been read successfully")
-            logging.info("Obtaining preprocessing object")
+            logging.info("Read train and test data completed")
 
-            preprocessing_obj = self.get_data_transformation_object()
+            logging.info("preprocessing process started")
 
-            logging.info("Preprocessing obj obtained successfully")
+            target_column_name="Item_Outlet_Sales"
 
-            target_column = "Item_Outlet_Sales"
-            input_feature_train= train_df.drop(columns=["Outlet_Establishment_Year", "Item_Outlet_Sales"], axis=1)
-            target_feature_train_df = train_df[target_column]
+            input_feature_train_df=train_df.drop(columns=[target_column_name, 'Outlet_Establishment_Year'],axis=1)
+            target_feature_train_df=train_df[target_column_name]
 
-            input_feature_val= val_df.drop(columns=["Outlet_Establishment_Year", "Item_Outlet_Sales"], axis=1)
-            target_feature_val_df = val_df[target_column]
+            input_feature_test_df=test_df.drop(columns=[target_column_name, 'Outlet_Establishment_Year'],axis=1)
+            target_feature_test_df=test_df[target_column_name]
 
-            logging.info("Applying preprocessing object on training and Validation Dataframes")
+            logging.info(
+                "Applying preprocessing object on training dataframe and testing dataframe."
+            )
 
-            input_feature_train_arr = preprocessing_obj.fit_transform(input_feature_train)
-            input_feature_val_arr = preprocessing_obj.fit_transform(input_feature_val)
+            input_feature_train_arr=self.fit_transform(input_feature_train_df)
+            input_feature_test_arr=self.fit_transform(input_feature_test_df)
 
             train_arr = np.c_[
                 input_feature_train_arr, np.array(target_feature_train_df)
             ]
+            test_arr = np.c_[input_feature_test_arr, np.array(target_feature_test_df)]
 
-            val_arr = np.c_[
-                input_feature_val_arr, np.array(target_feature_val_df)
-            ]
-            logging.info("Saving preprocessing object")
-            save_object(
-                file_path= self.data_transformation_config.preprocessor_obj_file_path,
-                obj=preprocessing_obj
-            )
+            logging.info("preprocessing process completed")
 
             return (
                 train_arr,
-                val_arr,
-                self.data_transformation_config.preprocessor_obj_file_path
+                test_arr,
+                self.data_transformation_config.preprocessor_obj_file_path,
             )
-
         except Exception as e:
-            raise CustomException(e, sys) from e
+            raise CustomException(e,sys) from e
