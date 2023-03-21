@@ -4,8 +4,9 @@ from dataclasses import dataclass
 
 import numpy as np
 from sklearn.linear_model import LinearRegression
+from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import (
-    GradientBoostingRegressor, RandomForestRegressor
+    GradientBoostingRegressor, RandomForestRegressor, AdaBoostRegressor
 )
 
 from xgboost import XGBRegressor
@@ -37,6 +38,9 @@ class ModelTrainer:
                 "Random Forest": RandomForestRegressor(),
                 "Gradient Boosting": GradientBoostingRegressor(),
                 "XGBRegressor": XGBRegressor(),
+                "LinearRegression": LinearRegression(),
+                "Decision Tree": DecisionTreeRegressor(),
+                "AdaBoost Regressor": AdaBoostRegressor()
             }
             params={
                 "Random Forest":{
@@ -57,7 +61,17 @@ class ModelTrainer:
                     'learning_rate':[.1,.01,.05,.001],
                     'n_estimators': [8,16,32,64,128,256]
                 },
-                
+                "LinearRegression": {},
+                "Decision Tree": {
+                    'criterion':['squared_error', 'friedman_mse', 'absolute_error', 'poisson'],
+                    # 'splitter':['best','random'],
+                    # 'max_features':['sqrt','log2'],
+                },
+                "AdaBoost Regressor":{
+                    'learning_rate':[.1,.01,0.5,.001],
+                    # 'loss':['linear','square','exponential'],
+                    'n_estimators': [8,16,32,64,128,256]
+                }       
             }
 
             model_report: dict= evaluate_models(X_train=X_train, y_train= y_train, X_test=X_val, y_test=y_val, models=models, param=params)
