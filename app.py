@@ -111,7 +111,10 @@ def signup():
 @app.route('/about')
 @login_required
 def about():
-    return render_template('about.html')
+    form = UserForm()
+    user_id = current_user.id
+    name = User.query.get(user_id)
+    return render_template('about.html', name=name)
 
 
 @app.route('/logout')

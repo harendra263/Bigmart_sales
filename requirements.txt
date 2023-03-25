@@ -11,4 +11,5 @@ flask_bootstrap
 flask_sqlalchemy
 flask_login
 email_validator
+wtforms_sqlalchemy
 -e .

@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField, BooleanField, DateTimeField, TextAreaField, FloatField
 from wtforms.validators import DataRequired, Length, Email, InputRequired, EqualTo
 from flask_wtf.file import FileField
+from wtforms_sqlalchemy.fields import QuerySelectField
 
 class LoginForm(FlaskForm):
     username = StringField('username', validators=[InputRequired(), Length(min=4, max=15)])
