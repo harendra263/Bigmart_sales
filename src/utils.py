@@ -55,6 +55,6 @@ def evaluate_models(X_train, y_train,X_test,y_test,models,param):
 def load_object(file_path):
     try:
         with open(file=file_path, mode='rb') as file_obj:
-            return dill.dump(file_obj)
+            return dill.load(file_obj)
     except Exception as e:
         raise CustomException(e, sys) from e

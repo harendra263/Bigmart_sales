@@ -58,3 +58,22 @@ class CustomData:
             return pd.DataFrame(custom_data_dict)
         except Exception as e:
             raise CustomException(e, sys) from e
+
+if __name__ == "__main__":
+    obj = CustomData(
+        Item_Identifier="FDV38",
+        Item_Weight=102.98,
+        Item_Fat_Content="Regular",
+        Item_Visibility=0.56,
+        Item_Type="Dairy",
+        Outlet_Identifier="OUT010",
+        Item_MRP=1203.45,
+        Outlet_Type="Supermarket Type3",
+        Outlet_Location_Type="Tier 3",
+        Outlet_Size="Medium"
+    )
+
+    data = obj.get_data_as_dataframe()
+
+    predictpipeline = PredictPipeline()
+    print(predictpipeline.predict(data)[0])

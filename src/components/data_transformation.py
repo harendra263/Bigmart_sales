@@ -62,7 +62,7 @@ class DataTransformation:
         
     def fit_transform(self, df: pd.DataFrame):
         try:
-            df = self._handle_missing_values(df)
+            # df = self._handle_missing_values(df)
             df = self._label_encoder(df=df)
             df = self._scale_num_col(df=df)
             return df.to_numpy()

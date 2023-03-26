@@ -3,6 +3,8 @@ from wtforms import StringField, SubmitField, PasswordField, BooleanField, DateT
 from wtforms.validators import DataRequired, Length, Email, InputRequired, EqualTo
 from flask_wtf.file import FileField
 from wtforms_sqlalchemy.fields import QuerySelectField
+from .models import item_identifier, fat_content, store_identifier, outlet_type, location_type, item_type, outlet_size
+from .models import ItemIdentifier, FatContent, OutletType, StoreIdentifier, OutletSize, LocationType, ItemType
 
 class LoginForm(FlaskForm):
     username = StringField('username', validators=[InputRequired(), Length(min=4, max=15)])
@@ -27,14 +29,14 @@ class UserForm(FlaskForm):
     submit = SubmitField("Submit")
 
 class PredictForm(FlaskForm):
-    ItemIdentifier = StringField("Item Identifier", validators=[DataRequired()])
-    Item_Weight = FloatField("Item_Weight", validators=[DataRequired()])
-    Item_Fat_Content = StringField('Item_Fat_Content', validators=[DataRequired()])
-    Item_Visibility = FloatField("Item_Visibility", validators=[DataRequired()])
-    Item_Type = StringField("Item_Type", validators=[DataRequired()])
-    Item_MRP = FloatField("Item_MRP", validators=[DataRequired()])
-    Outlet_Identifier = StringField("Outlet_Identifier", validators=[DataRequired()])
-    Outlet_Size = StringField("Outlet_Size", validators=[DataRequired()])
-    Outlet_Location_Type = StringField("Outlet_Location_Type", validators=[DataRequired()])
-    Outlet_Type = StringField("Outlet_Type", validators=[DataRequired()])
+    Item_Identifier = QuerySelectField("Item Identifier", validators=[DataRequired()], query_factory=item_identifier, allow_blank=False, get_label='item_name')
+    Item_Weight = FloatField("Item Weight", validators=[DataRequired()])
+    Item_Fat_Content = QuerySelectField('Item Fat Content', validators=[DataRequired()], query_factory=fat_content, allow_blank=False, get_label='Content')
+    Item_Visibility = FloatField("Item Visibility", validators=[DataRequired()])
+    Item_Type = QuerySelectField("Item Type", validators=[DataRequired()], query_factory=item_type, allow_blank=False, get_label='Item_Type')
+    Item_MRP = FloatField("Item MRP", validators=[DataRequired()])
+    Outlet_Identifier = QuerySelectField("Outlet Identifier", validators=[DataRequired()], query_factory=store_identifier, allow_blank=False, get_label='store_name')
+    Outlet_Size = QuerySelectField("Outlet Size", validators=[DataRequired()], query_factory=outlet_size, allow_blank=False, get_label='Outlet_Size')
+    Outlet_Location_Type = QuerySelectField("Outlet Location Type", validators=[DataRequired()], query_factory=location_type, allow_blank=False, get_label='Location_Type')
+    Outlet_Type = QuerySelectField("Outlet Type", validators=[DataRequired()], query_factory=outlet_type, allow_blank=False, get_label='Outlet_Type')
     submit = SubmitField("Predict")

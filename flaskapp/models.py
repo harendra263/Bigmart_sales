@@ -16,16 +16,19 @@ class User(UserMixin, db.Model):
 class Predict(db.Model):
     user_id = db.Column(db.Integer, primary_key=True)
     Item_Identifier = db.Column(db.String(15), unique=True, nullable=False)
-    Item_Weight = db.Column(db.Numeric(10, 3), nullable=False)
+    Item_Weight = db.Column(db.Float, nullable=False)
     Item_Fat_Content = db.Column(db.String(15), nullable=False)
-    Item_Visibility = db.Column(db.Numeric(10, 3), nullable=False)
+    Item_Visibility = db.Column(db.Float, nullable=False)
     Item_Type = db.Column(db.String(15), nullable=False)
-    Item_MRP = db.Column(db.Numeric(10, 3), nullable=False)
+    Item_MRP = db.Column(db.Float, nullable=False)
     Outlet_Identifier = db.Column(db.String(15), unique=True, nullable=False)
     Outlet_Size = db.Column(db.String(15), nullable=False)
     Outlet_Location_Type = db.Column(db.String(15), nullable=False)
     Outlet_Type = db.Column(db.String(15), nullable=False)
-    Prediction = db.Column(db.Numeric(10, 3), nullable=False)
+    Prediction = db.Column(db.Float, nullable=False)
+
+    def __repr__(self) -> str:
+        return f"<Predict(Item_Identifier='{self.Item_Identifier}')>"
 
 
 class ItemIdentifier(db.Model):
@@ -48,3 +51,36 @@ class OutletType(db.Model):
 class LocationType(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     Location_Type = db.Column(db.String(50), unique=True)
+
+class ItemType(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    Item_Type = db.Column(db.String(50), unique=True)
+
+class OutletSize(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    Outlet_Size = db.Column(db.String(50), unique=True)
+
+
+
+def item_identifier():
+    return ItemIdentifier.query.all()
+
+def store_identifier():
+    return StoreIdentifier.query.all()
+
+def fat_content():
+    return FatContent.query.all()
+
+def outlet_type():
+    return OutletType.query.all()
+
+def location_type():
+    return LocationType.query.all()
+
+def item_type():
+    return ItemType.query.all()
+
+
+def outlet_size():
+    return OutletSize.query.all()
+

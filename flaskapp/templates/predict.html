@@ -1,10 +1,53 @@
 {% extends 'base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
 
+<link rel="stylesheet" href="{{url_for('.static', filename='css/predict.css')}}">
 
 {% block title %}Prediction{% endblock %}
 
 {% block content %}
-    <form action="/predict" method="POST">
-        
-    </form>
+    <div class="container mt-5 container-md shadow p-3 mb-5 bg-body rounded" style="max-width: 850px">
+        <form action="/predict" method="POST">
+            {{ form.hidden_tag() }}
+           <div class="row form-control-lg h5 text-dark">
+            <div class="col-lg-4 col-md-3">
+                {{ wtf.form_field(form.Item_Identifier) }}
+            </div>
+            <div class="col-lg-4 col-md-3">
+                {{ wtf.form_field(form.Item_Weight) }}
+            </div>
+            <div class="col-lg-4 col-md-3">
+                {{ wtf.form_field(form.Item_Fat_Content) }}
+            </div>
+            <div class="col-lg-4 col-md-3">
+                {{ wtf.form_field(form.Item_Visibility) }}
+            </div>
+            <div class="col-lg-4 col-md-3">
+                {{ wtf.form_field(form.Item_Type) }}
+            </div>
+            <div class="col-lg-4 col-md-3">
+                {{ wtf.form_field(form.Outlet_Identifier) }}
+            </div>
+            <div class="col-lg-4 col-md-3">
+                {{ wtf.form_field(form.Item_MRP) }}
+            </div>
+            <div class="col-lg-4 col-md-3">
+                {{ wtf.form_field(form.Outlet_Type) }}
+            </div>
+            <div class="col-lg-4 col-md-3">
+                {{ wtf.form_field(form.Outlet_Location_Type) }}
+            </div>
+            <div class="col-lg-4 col-md-3">
+                {{ wtf.form_field(form.Outlet_Size) }}
+            </div>
+           </div>
+           <div class="mt-1 form-control-lg">
+            {{ form.submit(class="btn btn-outline-success btn-lg") }}
+           </div>
+        </form>
+        <div class="border-top form-control-lg mt-2 font-monospace text-black-50">
+            <h4 class="h5 text-md-start mt-1"> Sales predicted: {{ results }} </h4>
+        </div>
+    </div>
+
 {% endblock %}

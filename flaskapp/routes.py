@@ -83,8 +83,6 @@ def profile():
 def predict():
     form = PredictForm()
     user_id = current_user.id
-    if request.method == "GET":
-        return render_template("home.html")
     if form.validate_on_submit():
         data = CustomData(
             Item_Identifier= form.Item_Identifier.data,
@@ -101,21 +99,25 @@ def predict():
         pred_df = data.get_data_as_dataframe()
         predict_pipeline = PredictPipeline()
         results = predict_pipeline.predict(pred_df)
-        data_db = Predict(
-            user_id = user_id,
-            Item_Identifier= form.Item_Identifier.data,
-            Item_Weight= form.Item_Weight.data,
-            Item_Fat_Content= form.Item_Fat_Content.data,
-            Item_Visibility = form.Item_Visibility.data,
-            Item_Type = form.Item_Type.data,
-            Item_MRP = form.Item_MRP.data,
-            Outlet_Identifier= form.Outlet_Identifier.data,
-            Outlet_Size= form.Outlet_Size,
-            Outlet_Location_Type= form.Outlet_Location_Type.data,
-            Outlet_Type= form.Outlet_Type.data,
-            Prediction = results
-        )
-        db.session.add(data_db)
-        db.session.commit()
+        # data_db = Predict(
+        #     user_id = user_id,
+        #     Item_Identifier= form.Item_Identifier.data,
+        #     Item_Weight= form.Item_Weight.data,
+        #     Item_Fat_Content= form.Item_Fat_Content.data,
+        #     Item_Visibility = form.Item_Visibility.data,
+        #     Item_Type = form.Item_Type.data,
+        #     Item_MRP = form.Item_MRP.data,
+        #     Outlet_Identifier= form.Outlet_Identifier.data,
+        #     Outlet_Size= form.Outlet_Size,
+        #     Outlet_Location_Type= form.Outlet_Location_Type.data,
+        #     Outlet_Type= form.Outlet_Type.data,
+        #     Prediction = results[0]
+        # )
+        # db.session.add(data_db)
+        # db.session.commit()
 
-        return render_template('predict.html', results = results[0])
+        return render_template('predict.html',form=form, results = results[0])
+    
+    # Add a default return statement here
+    return render_template('predict.html', form=form)
+
