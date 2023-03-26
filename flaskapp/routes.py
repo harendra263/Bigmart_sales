@@ -1,74 +1,22 @@
 from flask import Flask, render_template, flash, request, redirect, url_for, session
-from webforms import LoginForm, RegisterForm, UserForm, PredictForm
-from flask_bootstrap import Bootstrap
+from .webforms import LoginForm, RegisterForm, UserForm, PredictForm
+from .models import User, Predict
+from flaskapp import db
+from flaskapp import app
 import pandas as pd
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
-import os
-from datetime import datetime
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 
 from src.pipeline.predict import CustomData, PredictPipeline
 
-from datetime import datetime
 
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/harendrakumar/Documents/bigmart/database.db'
-app.config['SECRET_KEY'] = 'mysecretkeyforme'
-db = SQLAlchemy(app=app)
-Bootstrap(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(15), unique=True)
-    email = db.Column(db.String(50), unique=True)
-    password = db.Column(db.String(80))
-    joining_date = db.Column(db.DateTime, default = datetime.utcnow)
-
-    def __repr__(self) -> str:
-        return f"<User(username='{self.username}', email='{self.email}')>"
-
-class Predict(db.Model):
-    user_id = db.Column(db.Integer, primary_key=True)
-    Item_Identifier = db.Column(db.String(15), unique=True, nullable=False)
-    Item_Weight = db.Column(db.Numeric(10, 3), nullable=False)
-    Item_Fat_Content = db.Column(db.String(15), nullable=False)
-    Item_Visibility = db.Column(db.Numeric(10, 3), nullable=False)
-    Item_Type = db.Column(db.String(15), nullable=False)
-    Item_MRP = db.Column(db.Numeric(10, 3), nullable=False)
-    Outlet_Identifier = db.Column(db.String(15), unique=True, nullable=False)
-    Outlet_Size = db.Column(db.String(15), nullable=False)
-    Outlet_Location_Type = db.Column(db.String(15), nullable=False)
-    Outlet_Type = db.Column(db.String(15), nullable=False)
-    Prediction = db.Column(db.Numeric(10, 3), nullable=False)
-
-
-class ItemIdentifier(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    item_name = db.Column(db.String(50),unique=True)
-
-
-class StoreIdentifier(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    store_name = db.Column(db.String(50),unique=True)
-
-class FatContent(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    Content = db.Column(db.String(50), unique=True)
-
-class OutletType(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    Outlet_Type = db.Column(db.String(50), unique=True)
-
-class LocationType(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    Location_Type = db.Column(db.String(50), unique=True)
 
 
 

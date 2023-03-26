@@ -37,3 +37,4 @@ class PredictForm(FlaskForm):
     Outlet_Size = StringField("Outlet_Size", validators=[DataRequired()])
     Outlet_Location_Type = StringField("Outlet_Location_Type", validators=[DataRequired()])
     Outlet_Type = StringField("Outlet_Type", validators=[DataRequired()])
+    submit = SubmitField("Predict")
