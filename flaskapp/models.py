@@ -1,6 +1,8 @@
 from flaskapp import db
 from flask_login import UserMixin
-from datetime import datetime
+from datetime import datetime, date, timezone
+from dateutil.tz import gettz
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 class User(UserMixin, db.Model):
@@ -9,19 +11,46 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(50), unique=True)
     password = db.Column(db.String(80))
     joining_date = db.Column(db.DateTime, default = datetime.utcnow)
+    last_login = db.Column(db.DateTime, default=datetime.utcnow)
+    last_logout = db.Column(db.DateTime)
+    login_count = db.Column(db.Integer, default=0)
+    login_date = db.Column(db.Date, default=date.today())
 
     def __repr__(self) -> str:
         return f"<User(username='{self.username}', email='{self.email}')>"
+    
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+    def update_login(self):
+        now = datetime.now(tz=gettz('Asia/Kolkata'))
+        today = date.today()
+        if self.last_login.date() != today:
+            self.login_count = 1
+            self.login_date = today
+        else:
+            self.login_count += 1
+        self.last_login = now
+        db.session.commit()
+
+    def update_logout(self):
+        now = datetime.now(tz=gettz('Asia/Kolkata'))
+        self.last_logout = now
+        db.session.commit()
+
 
 class Predict(db.Model):
     user_id = db.Column(db.Integer, primary_key=True)
-    Item_Identifier = db.Column(db.String(15), unique=True, nullable=False)
+    Item_Identifier = db.Column(db.String(15), nullable=False)
     Item_Weight = db.Column(db.Float, nullable=False)
     Item_Fat_Content = db.Column(db.String(15), nullable=False)
     Item_Visibility = db.Column(db.Float, nullable=False)
     Item_Type = db.Column(db.String(15), nullable=False)
     Item_MRP = db.Column(db.Float, nullable=False)
-    Outlet_Identifier = db.Column(db.String(15), unique=True, nullable=False)
+    Outlet_Identifier = db.Column(db.String(15), nullable=False)
     Outlet_Size = db.Column(db.String(15), nullable=False)
     Outlet_Location_Type = db.Column(db.String(15), nullable=False)
     Outlet_Type = db.Column(db.String(15), nullable=False)

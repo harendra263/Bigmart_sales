@@ -35,6 +35,7 @@ def login():
         if user := User.query.filter_by(username=form.username.data).first():
             if check_password_hash(user.password, form.password.data):
                 login_user(user, remember=form.remember.data)
+                user.update_login()
                 return redirect(url_for('about'))
             else:
                 flash("wrong password")
@@ -66,9 +67,10 @@ def about():
 
 
 @app.route('/logout')
-@login_required
 def logout():
-    logout_user()
+    if current_user.is_authenticated:
+        current_user.update_logout()
+        logout_user()
     return redirect(url_for('home'))
 
 
@@ -99,22 +101,22 @@ def predict():
         pred_df = data.get_data_as_dataframe()
         predict_pipeline = PredictPipeline()
         results = predict_pipeline.predict(pred_df)
-        # data_db = Predict(
-        #     user_id = user_id,
-        #     Item_Identifier= form.Item_Identifier.data,
-        #     Item_Weight= form.Item_Weight.data,
-        #     Item_Fat_Content= form.Item_Fat_Content.data,
-        #     Item_Visibility = form.Item_Visibility.data,
-        #     Item_Type = form.Item_Type.data,
-        #     Item_MRP = form.Item_MRP.data,
-        #     Outlet_Identifier= form.Outlet_Identifier.data,
-        #     Outlet_Size= form.Outlet_Size,
-        #     Outlet_Location_Type= form.Outlet_Location_Type.data,
-        #     Outlet_Type= form.Outlet_Type.data,
-        #     Prediction = results[0]
-        # )
-        # db.session.add(data_db)
-        # db.session.commit()
+        data_db = Predict(
+            user_id = user_id,
+            Item_Identifier= request.form['Item_Identifier'],
+            Item_Weight= request.form['Item_Weight'],
+            Item_Fat_Content= request.form['Item_Fat_Content'],
+            Item_Visibility = request.form['Item_Visibility'],
+            Item_Type = request.form['Item_Type'],
+            Item_MRP = request.form['Item_MRP'],
+            Outlet_Identifier= request.form['Outlet_Identifier'],
+            Outlet_Size= request.form['Outlet_Size'],
+            Outlet_Location_Type= request.form['Outlet_Location_Type'],
+            Outlet_Type= request.form['Outlet_Type'],
+            Prediction = results[0]
+        )
+        db.session.add(data_db)
+        db.session.commit()
 
         return render_template('predict.html',form=form, results = results[0])
     
