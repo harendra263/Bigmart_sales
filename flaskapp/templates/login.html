@@ -14,7 +14,7 @@ Log in
 {% block content %}
 
 
-<div class="container shadow-sm p-3 mb-5 bg-body rounded">
+<div class="container shadow-sm p-3 mb-5 bg-body rounded" style="max-width: 600px">
 
     <form class="form-signin" method="POST" action="/login">
         <h2 class="form-signup-heading">Log in</h2>
@@ -25,7 +25,7 @@ Log in
         <button class="btn btn-outline-success btn-lg" type="submit">Log in</button>
         <div class="text-xl-start   pt-3">
             <small class="text-muted">
-                Need An Account? <a class="ml-2" href="{{ url_for('signup') }}">Sign Up Now</a>
+                Need An Account? <a class="ml-2" href="{{ url_for('signup') }}">Sign Up</a>
             </small>
         </div>
     </div>

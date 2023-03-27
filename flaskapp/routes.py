@@ -41,7 +41,6 @@ def login():
                 flash("wrong password")
         else:
             flash("Invalid username")
-
     return render_template('login.html', form=form)
     
 @app.route('/signup', methods = ['GET', 'POST'])
@@ -102,7 +101,6 @@ def predict():
         predict_pipeline = PredictPipeline()
         results = predict_pipeline.predict(pred_df)
         data_db = Predict(
-            user_id = user_id,
             Item_Identifier= request.form['Item_Identifier'],
             Item_Weight= request.form['Item_Weight'],
             Item_Fat_Content= request.form['Item_Fat_Content'],
@@ -113,7 +111,8 @@ def predict():
             Outlet_Size= request.form['Outlet_Size'],
             Outlet_Location_Type= request.form['Outlet_Location_Type'],
             Outlet_Type= request.form['Outlet_Type'],
-            Prediction = results[0]
+            Prediction = results[0],
+            user_id = user_id
         )
         db.session.add(data_db)
         db.session.commit()

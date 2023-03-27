@@ -10,8 +10,8 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(15), unique=True)
     email = db.Column(db.String(50), unique=True)
     password = db.Column(db.String(80))
-    joining_date = db.Column(db.DateTime, default = datetime.utcnow)
-    last_login = db.Column(db.DateTime, default=datetime.utcnow)
+    joining_date = db.Column(db.DateTime, default = datetime.now(tz=gettz('Asia/Kolkata')))
+    last_login = db.Column(db.DateTime, default=datetime.now(tz=gettz('Asia/Kolkata')))
     last_logout = db.Column(db.DateTime)
     login_count = db.Column(db.Integer, default=0)
     login_date = db.Column(db.Date, default=date.today())
@@ -43,7 +43,7 @@ class User(UserMixin, db.Model):
 
 
 class Predict(db.Model):
-    user_id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     Item_Identifier = db.Column(db.String(15), nullable=False)
     Item_Weight = db.Column(db.Float, nullable=False)
     Item_Fat_Content = db.Column(db.String(15), nullable=False)
@@ -55,6 +55,7 @@ class Predict(db.Model):
     Outlet_Location_Type = db.Column(db.String(15), nullable=False)
     Outlet_Type = db.Column(db.String(15), nullable=False)
     Prediction = db.Column(db.Float, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     def __repr__(self) -> str:
         return f"<Predict(Item_Identifier='{self.Item_Identifier}')>"
