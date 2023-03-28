@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+
+{% block title %}Profile-About{% endblock %}
+{% block content %}
+<div class="container mt-5 mx-auto" style="max-width: 200px;">
+    <div class="card border-0" style="width: 13.6rem;">
+        <img src="{{ image_file }}" class="card-img-top img-thumbnail rounded-5" alt="...">
+        <div class="card-body text-center">
+          <h5 class="card-title">{{ name.username | capitalize }}</h5>
+          <p class="card-text">Employee ID: 0000{{ id }}</p>
+          <p class="card-text text-muted">{{ name.email }}</p>
+          <a href="{{ url_for('update_profile') }}" class="btn btn-primary">Update Profile</a>
+        </div>
+      </div>
+</div>
+{% endblock %}

@@ -15,6 +15,7 @@ class User(UserMixin, db.Model):
     last_logout = db.Column(db.DateTime)
     login_count = db.Column(db.Integer, default=0)
     login_date = db.Column(db.Date, default=date.today())
+    profile_pic = db.Column(db.String(), nullable=True, default='default.jpg')
 
     def __repr__(self) -> str:
         return f"<User(username='{self.username}', email='{self.email}')>"

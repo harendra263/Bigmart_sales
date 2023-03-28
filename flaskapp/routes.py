@@ -1,16 +1,15 @@
 from flask import Flask, render_template, flash, request, redirect, url_for, session
-from .webforms import LoginForm, RegisterForm, UserForm, PredictForm
+from .webforms import LoginForm, RegisterForm, UserForm, PredictForm, UpdateAccountForm
 from .models import User, Predict
 from flaskapp import db
 from flaskapp import app
-import pandas as pd
+import os
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
-
 from src.pipeline.predict import CustomData, PredictPipeline
-
-
+import secrets
+from PIL import Image
 
 
 login_manager = LoginManager()
@@ -73,11 +72,49 @@ def logout():
     return redirect(url_for('home'))
 
 
-@app.route('/profile', methods = ['GET', 'POST'])
+@app.route('/profile')
+@login_required
 def profile():
     form = UserForm()
     user_id = current_user.id
-    name_to_update = User.query.get_or_404(user_id)
+    name = User.query.get_or_404(user_id)
+    image_file = url_for(
+        'static', filename=f'profile_pics/{current_user.profile_pic}'
+    )
+    return render_template('cards.html', form=form, name=name, id=user_id, image_file=image_file)
+
+def save_picture(form_picture):
+    random_hex = secrets.token_hex(8)
+    _, f_ext = os.path.splitext(form_picture.filename)
+    picture_fn = random_hex + f_ext
+    picture_path = os.path.join(app.root_path, 'static/profile_pics', picture_fn)
+
+    output_size = (125, 125)
+    i = Image.open(form_picture)
+    i.thumbnail(output_size)
+    i.save(picture_path)
+    return picture_fn
+
+@app.route('/update_profile', methods=['GET', 'POST'])
+@login_required
+def update_profile():
+    form = UpdateAccountForm()
+    if form.validate_on_submit():
+        if form.picture.data:
+            picture_file = save_picture(form.picture.data)
+            current_user.profile_pic = picture_file
+        current_user.username = form.username.data
+        current_user.email = form.email.data
+        db.session.commit()
+        flash("Your account has been updated!", "success")
+        return redirect(url_for('update_profile'))
+    elif request.method == "GET":
+        form.username.data = current_user.username
+        form.email.data = current_user.email
+    image_file = url_for(
+        'static', filename=f'profile_pics/{current_user.profile_pic}'
+    )
+    return render_template('profile.html', form=form, title='Account', image_file=image_file)
 
 
 @app.route('/predict', methods = ['GET', 'POST'])

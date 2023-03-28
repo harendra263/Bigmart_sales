@@ -8,4 +8,5 @@ app.config['SECRET_KEY'] = 'mysecretkeyforme'
 db = SQLAlchemy(app=app)
 Bootstrap(app)
 
+
 from flaskapp import routes
