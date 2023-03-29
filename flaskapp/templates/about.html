@@ -2,7 +2,21 @@
 
 
 {% block title %}About{% endblock %}
+
 {% block content %}
+    <div class="container mt-3" style="max-width: 600px;">
+        {% for message in get_flashed_messages() %}
+        <div class="alert alert-success alert-dismissible fade show text-center" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+    </div>
+
+    <div class="text-sm-end me-4 text-muted">
+        Last Logged in: {{ current_user.login_date }}
+    </div>
+
     <div class="container my-lg-5 my-md-5 mt-5 text-center text-success">
         <h3 class="w-20 ms-lg-4">Welcome {{ current_user.username | capitalize }}, To BigMart Stores</h1>
     </div>

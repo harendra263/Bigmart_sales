@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+
+{% block title %}Profile-About{% endblock %}
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        {% for user in name %}
+            <div class="col-md-3 mt-lg-4">
+                <div class="card mb-2 mt-2" style="width: 13.8rem;">
+                    <img src="static/profile_pics/{{ user.profile_pic }}" class="card-img-top card-img-top img-thumbnail rounded-5" alt="...">
+                    <div class="card-title text-center">{{ user.username | capitalize  }}</div>
+                    <div class="card-body text-center">
+                        <div>Employee ID: 0000{{ user.id  }}</div>
+                        <div class="text-muted">{{ user.email  }}</div>
+                        <a href="/update/{{ user.id }}" class="btn btn-primary mt-3">Update Profile</a>
+
+                    </div>
+                    
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

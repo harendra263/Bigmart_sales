@@ -35,11 +35,14 @@ def login():
             if check_password_hash(user.password, form.password.data):
                 login_user(user, remember=form.remember.data)
                 user.update_login()
+                flash("Login Succesful", category="success")
                 return redirect(url_for('about'))
             else:
-                flash("wrong password")
+                flash("wrong password", category="danger")
+                return redirect(url_for('login'))
         else:
-            flash("Invalid username")
+            flash("Invalid username", category="danger")
+            return redirect(url_for('login'))
     return render_template('login.html', form=form)
     
 @app.route('/signup', methods = ['GET', 'POST'])
@@ -95,9 +98,9 @@ def save_picture(form_picture):
     i.save(picture_path)
     return picture_fn
 
-@app.route('/update_profile', methods=['GET', 'POST'])
+@app.route('/account', methods=['GET', 'POST'])
 @login_required
-def update_profile():
+def account():
     form = UpdateAccountForm()
     if form.validate_on_submit():
         if form.picture.data:
@@ -107,7 +110,7 @@ def update_profile():
         current_user.email = form.email.data
         db.session.commit()
         flash("Your account has been updated!", "success")
-        return redirect(url_for('update_profile'))
+        return redirect(url_for('account'))
     elif request.method == "GET":
         form.username.data = current_user.username
         form.email.data = current_user.email
@@ -115,6 +118,33 @@ def update_profile():
         'static', filename=f'profile_pics/{current_user.profile_pic}'
     )
     return render_template('profile.html', form=form, title='Account', image_file=image_file)
+
+@app.route('/admin', methods=['GET', 'POST'])
+def admin():
+    user = User.query.all()
+    image_file = url_for(
+        'static', filename=f'profile_pics/{current_user.profile_pic}'
+    )
+    return render_template('admin.html', name=user, image_file=image_file)
+
+
+@app.route('/update/<int:id>', methods=['GET', 'POST'])
+def update(id):
+    form = UpdateAccountForm()
+    user = User.query.get_or_404(id)
+    if request.method == "POST":
+        user.username = request.form['username']
+        user.email = request.form['email']
+        try:
+            db.session.commit()
+            return redirect(url_for('admin'))
+        except Exception:
+            return "An error"
+    elif request.method == "GET":
+        form.username.data = user.username
+        form.email.data = user.email
+    return render_template('update.html', form=form, user=user)
+
 
 
 @app.route('/predict', methods = ['GET', 'POST'])

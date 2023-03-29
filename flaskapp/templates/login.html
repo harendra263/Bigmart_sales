@@ -13,6 +13,18 @@ Log in
 
 {% block content %}
 
+<div class="container text-center mt-3 align-items-center" style="max-width: 600px;">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+</div>
 
 <div class="container shadow-sm p-3 mb-5 bg-body rounded" style="max-width: 600px">
 
