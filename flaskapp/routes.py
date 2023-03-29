@@ -121,6 +121,7 @@ def account():
 
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
+    """Grab all the users from the database"""
     user = User.query.all()
     image_file = url_for(
         'static', filename=f'profile_pics/{current_user.profile_pic}'
@@ -137,7 +138,8 @@ def update(id):
         user.email = request.form['email']
         try:
             db.session.commit()
-            return redirect(url_for('admin'))
+            flash("Account has been updated!", "success")
+            return redirect(url_for('update', id = user.id))
         except Exception:
             return "An error"
     elif request.method == "GET":
