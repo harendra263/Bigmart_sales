@@ -25,7 +25,7 @@ def load_user(user_id):
 
 @app.route('/')
 def home():
-    return render_template('home.html')
+    return render_template('index.html')
 
 @app.route('/login', methods = ['GET', 'POST'])
 def login():
@@ -133,7 +133,13 @@ def admin():
 def update(id):
     form = UpdateAccountForm()
     user = User.query.get_or_404(id)
-    if request.method == "POST":
+    if request.method == "GET":
+        form.username.data = user.username
+        form.email.data = user.email
+    elif request.method == "POST":
+        if form.picture.data:
+            picture_file = save_picture(form.picture.data)
+            user.profile_pic = picture_file
         user.username = request.form['username']
         user.email = request.form['email']
         try:
@@ -142,10 +148,22 @@ def update(id):
             return redirect(url_for('update', id = user.id))
         except Exception:
             return "An error"
-    elif request.method == "GET":
-        form.username.data = user.username
-        form.email.data = user.email
     return render_template('update.html', form=form, user=user)
+
+@app.route('/add_users', methods=['GET', 'POST'])
+def add_users():
+    form = RegisterForm()
+    if form.validate_on_submit():
+        hashed_password = generate_password_hash(form.password.data)
+        new_user = User(username=form.username.data,
+                        email = form.email.data,
+                        password= hashed_password)
+        
+        db.session.add(new_user)
+        db.session.commit()
+        flash("User has been added successfully!!", category="success")
+        return redirect(url_for('add_users'))
+    return render_template('add_users.html', form=form)
 
 
 
